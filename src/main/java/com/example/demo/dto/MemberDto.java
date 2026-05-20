@@ -28,9 +28,6 @@ public class MemberDto {
 	
 	/** 性別 */
 	private Integer sex;
-	
-	/** 性別名 */
-	private String sexName;
 
 	/** 住所 */
 	private String address;
@@ -95,12 +92,24 @@ public class MemberDto {
 		this.sex = sex;
 	}
 	
+	/*
+	 * タイムリーフの仕組み
+	 * HTMLに ${member.sexName} を書く
+	 *タイムリーフはsexNameフィールドを探すわけじゃなくて自動的に getSexName() というgetterを裏側で呼び出す。
+     *メソッドが実行され、その場で sex の中身（0か1か）が判定されて、「男」や「女」という文字がHTMLに返される。
+	 * */
+	
 	public String getSexName() {
-		return sexName;
-	}
-
-	public void setSexName(String sexName) {
-		this.sexName = sexName;
+		//性別が0なら男、それ以外は女を返す（Nullの場合は不明）
+		if(this.sex == null) {
+			return "不明";
+		}
+		
+        if (this.sex == 0) {
+        	return "男";
+        } else {
+        	return "女";
+        }
 	}
 
 	public String getAddress() {
@@ -192,7 +201,6 @@ public class MemberDto {
 		memberDto.setName(form.getName());
 		memberDto.setAge(form.getAge());
 		memberDto.setSex(form.getSex());
-		memberDto.setSexName(form.getSexName());
 		memberDto.setAddress(form.getAddress());
 		memberDto.setTel(form.getTel());
 		memberDto.setMail(form.getMail());
@@ -220,7 +228,6 @@ public class MemberDto {
 		memberForm.setName(dto.getName());
 		memberForm.setAge(dto.getAge());
 		memberForm.setSex(dto.getSex());
-		memberForm.setSexName(dto.getSexName());
 		memberForm.setAddress(dto.getAddress());
 		memberForm.setTel(dto.getTel());
 		memberForm.setMail(dto.getMail());
@@ -262,15 +269,6 @@ public class MemberDto {
 		memberDto.setName(entity.getName());
 		memberDto.setAge(entity.getAge());
 		memberDto.setSex(entity.getSex());
-		
-		// 性別名をセットする
-		//性別が0なら男、それ以外は女を設定する
-        if (entity.getSex() == 0) {
-        	memberDto.setSexName("男");
-        } else {
-        	memberDto.setSexName("女");
-        }
-        
 		memberDto.setAddress(entity.getAddress());
 		memberDto.setTel(entity.getTel());
 		memberDto.setMail(entity.getMail());
