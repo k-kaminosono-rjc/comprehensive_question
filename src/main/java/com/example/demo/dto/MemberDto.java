@@ -29,6 +29,9 @@ public class MemberDto {
 	/** 性別 */
 	private Integer sex;
 	
+	/** 性別名 */
+	private String sexName;
+
 	/** 住所 */
 	private String address;
 	
@@ -90,6 +93,14 @@ public class MemberDto {
 
 	public void setSex(Integer sex) {
 		this.sex = sex;
+	}
+	
+	public String getSexName() {
+		return sexName;
+	}
+
+	public void setSexName(String sexName) {
+		this.sexName = sexName;
 	}
 
 	public String getAddress() {
@@ -173,7 +184,7 @@ public class MemberDto {
 	}
 	
 	
-	/** From→Dtoへの変換 */
+	/** Form→Dtoへの変換 */
 	public static final MemberDto convertFormToDto(MemberForm form) {
 		//各値をセットする
 		MemberDto memberDto = new MemberDto();
@@ -181,6 +192,7 @@ public class MemberDto {
 		memberDto.setName(form.getName());
 		memberDto.setAge(form.getAge());
 		memberDto.setSex(form.getSex());
+		memberDto.setSexName(form.getSexName());
 		memberDto.setAddress(form.getAddress());
 		memberDto.setTel(form.getTel());
 		memberDto.setMail(form.getMail());
@@ -208,6 +220,7 @@ public class MemberDto {
 		memberForm.setName(dto.getName());
 		memberForm.setAge(dto.getAge());
 		memberForm.setSex(dto.getSex());
+		memberForm.setSexName(dto.getSexName());
 		memberForm.setAddress(dto.getAddress());
 		memberForm.setTel(dto.getTel());
 		memberForm.setMail(dto.getMail());
@@ -249,6 +262,15 @@ public class MemberDto {
 		memberDto.setName(entity.getName());
 		memberDto.setAge(entity.getAge());
 		memberDto.setSex(entity.getSex());
+		
+		// 性別名をセットする
+		//性別が0なら男、それ以外は女を設定する
+        if (entity.getSex() == 0) {
+        	memberDto.setSexName("男");
+        } else {
+        	memberDto.setSexName("女");
+        }
+        
 		memberDto.setAddress(entity.getAddress());
 		memberDto.setTel(entity.getTel());
 		memberDto.setMail(entity.getMail());

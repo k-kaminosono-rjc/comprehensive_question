@@ -20,6 +20,9 @@ public class MemberForm {
 	/** 性別 */
 	private Integer sex;
 	
+	/** 性別名*/
+	private String sexName;
+	
 	/** 住所 */
 	private String address;
 	
@@ -72,6 +75,15 @@ public class MemberForm {
 	public void setSex(Integer sex) {
 		this.sex = sex;
 	}
+	
+	public String getSexName() {
+		return sexName;
+	}
+
+	public void setSexName(String sexName) {
+		this.sexName = sexName;
+	}
+
 
 	public String getAddress() {
 		return address;
