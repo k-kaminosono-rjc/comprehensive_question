@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<link rel="stylesheet" th:href="@{/css/common.css}">
+	<title>list</title>
+</head>
+<body>
+	<div id="wapper">
+		<div class="menu">
+			<a href="/">メニュー</a>
+		</div>
+		<div class="menu">
+			<h2>メンバ一覧画面</h2>
+		</div>
+		<table class="list">
+			<tbody>
+				<tr>
+					<th>社員ID</th>
+					<th>氏名</th>
+					<th>年齢</th>
+					<th>性別</th>
+					<th>住所</th>
+					<th>電話番号</th>
+					<th>メールアドレス</th>
+					<th>役職</th>
+					<th>事業所</th>
+					<th>詳細</th>
+					<th>更新</th>
+					<th>削除</th>
+				</tr>
+				<tr th:each="member : ${members}">
+					<td th:text="${member.memberId}"></td>
+					<td th:text="${member.name}"></td>
+					<td th:text="${member.age}"></td>
+					<!--0なら男、それ以外なら女を表示する-->
+					<td th:text="${member.sex == 0} ? '男' : '女'"></td>
+					<td th:text="${member.address}"></td>
+					<td th:text="${member.tel}"></td>
+					<td th:text="${member.mail}"></td>
+					<td th:text="${member.mstPosition?.positionName}"></td>
+					<td th:text="${member.mstPlace?.placeName}"></td>
+					<td><a><button>詳細</button></a></td>
+					<td><a><button>更新</button></a></td>
+					<td><a><button>削除</button></a></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</body>
+</html>
