@@ -100,11 +100,7 @@ public class MemberDto {
 	 * */
 	
 	public String getSexName() {
-		//性別が0なら男、それ以外は女を返す（Nullの場合は不明）
-		if(this.sex == null) {
-			return "不明";
-		}
-		
+		//性別が0なら男、それ以外は女を返す
         if (this.sex == 0) {
         	return "男";
         } else {
