@@ -1,0 +1,53 @@
+@charset "UTF-8";
+
+#wapper {
+}
+
+.menu {
+	text-align: center;
+	padding: 10px;
+}
+
+.error {
+	text-align: center;
+	color: red;
+}
+
+table {
+	margin-left: auto;
+	margin-right: auto;
+	border-collapse: collapse;
+	border:1px solid #333;
+}
+
+table th {
+	width: 150px;
+	background-color: orange;
+	color: white;;
+	border-collapse: collapse;
+	border:1px solid #333;
+	padding: 5px;
+}
+
+table td {
+	width: 200px;
+	border-collapse: collapse;
+	border:1px solid #333;
+	padding: 5px;
+	text-align: center;
+}
+
+table.list th {
+	width: 100px;
+	border-collapse: collapse;
+	border:1px solid #333;
+	padding: 5px;
+}
+
+table.list td {
+	width: 100px;
+	border-collapse: collapse;
+	border:1px solid #333;
+	padding: 5px;
+	text-align: center;
+}
