@@ -1,7 +1,6 @@
 package com.example.demo.controller;
 
 import java.util.List;
-import java.util.Objects;
 
 import jakarta.validation.Valid;
 
@@ -139,7 +138,7 @@ public class MemberController {
 		 * Formを受け取ってDtoに変換する
 		 * メンバー登録処理を行う
 		 * 登録したメンバーを再度DBから取得する（存在チェック）
-		 * リダイレクト先に渡すためメンバーIDと役職IDと事業所IDを取得してフラッシュスコープに渡す
+		 * リダイレクト先に渡すためMemberDtoのオブジェクトをフラッシュスコープに渡す
 		 * リダイレクトで「addComp」の処理を起動する
 		 * */
 		
@@ -156,10 +155,8 @@ public class MemberController {
 			return "error";
 		}
 		
-		//リダイレクト先に新規登録したメンバーのIDを引き継ぐ
-		redirectAttribute.addFlashAttribute("memberId", saveMember.getMemberId());
-		redirectAttribute.addFlashAttribute("placeId", saveMember.getPlaceId());
-		redirectAttribute.addFlashAttribute("positionId", saveMember.getPositionId());
+		//リダイレクト先に新規登録したメンバーのオブジェクトを引き継ぐ
+		redirectAttribute.addFlashAttribute("saveMember", saveMember);
 		
 		
 		return "redirect:/addComp";
@@ -172,26 +169,26 @@ public class MemberController {
 	@GetMapping("/addComp")
 	private String addComp(Model model) {
 		/*
-		 * リダイレクトもとから一時的に渡されたmemberId、placeId、positionIdのNullチェック
+		 * リダイレクトもとから一時的に渡されたMemberDtoオブジェクトのNullチェック
 		 * nullの場合エラー画面を表示する
-		 * nullじゃなければそれぞれのIdを使ってDBからデータを取得
-		 * modelにせっとする
+		 * nullじゃなければ役職と事業所をDBから取得
+		 * modelにセットする
 		 * viewを返す
 		 * */
 		
-		String memberId = (String)model.getAttribute("memberId");
-		String placeId = (String)model.getAttribute("placeId");
-		String positionId = (String)model.getAttribute("positionId");
+		MemberDto member = (MemberDto)model.getAttribute("saveMember");
 		
-		if(Objects.isNull(memberId) || Objects.isNull(placeId) || Objects.isNull(positionId)) {
-			model.addAttribute("errorMessage", "対象IDが存在しません");
+		/*
+		 リダイレクトもとで取得する際にOptionalでnullチェックはしているのでここでは不要
+		 if(Objects.isNull(member)) {
+			model.addAttribute("errorMessage", "対象のメンバー情報が存在しません");
 			return "error";
 		}
+		 * */
 		
 		try {
-			model.addAttribute("member", memberService.getMember(memberId));
-			model.addAttribute("place", memberService.placeById(placeId));
-			model.addAttribute("position", memberService.positionById(positionId));
+			model.addAttribute("place", memberService.placeById(member.getPlaceId()));
+			model.addAttribute("position", memberService.positionById(member.getPositionId()));
 		} catch(NotFoundException e) {
 			model.addAttribute("errorMessage", "対象が存在しません、または削除されています");
 			return "error";
