@@ -148,16 +148,18 @@ public class MemberController {
 		MemberDto saveMember = null;
 		
 		try {
+			//対象のメンバーを取得、役職と事業所をsaveMemberにセットする（リダイレクト先の画面で表示するため）
 			saveMember = memberService.getMember(memberForm.getMemberId());
+			saveMember.setMstPlace(memberService.placeById(saveMember.getPlaceId()));
+			saveMember.setMstPosition(memberService.positionById(saveMember.getPositionId()));
 		}catch(NotFoundException e) {
-			//エラーメッセージをセットしてerror.htmlを表示する
+			//メンバー取得エラーの場合エラーメッセージをセットしてerror.htmlを表示する
 			model.addAttribute("errorMessage", "対象が存在しません、または削除されています");
 			return "error";
 		}
 		
-		//リダイレクト先に新規登録したメンバーのオブジェクトを引き継ぐ
-		redirectAttribute.addFlashAttribute("saveMember", saveMember);
-		
+		//役職と事業所をあらかじめセットしたsaveMemberをリダイレクト先に渡す
+		redirectAttribute.addFlashAttribute("saveMember",saveMember);
 		
 		return "redirect:/addComp";
 	}
@@ -168,15 +170,15 @@ public class MemberController {
 	 * */
 	@GetMapping("/addComp")
 	private String addComp(Model model) {
+		//Springの仕様でフラッシュスコープ（addFlashAttribute）で渡したデータは、
+		//リダイレクト先では何もしなくても自動で Model の中に格納される。
+		//そのため「@ModelAttribute」は不要
+		
+		
 		/*
-		 * リダイレクトもとから一時的に渡されたMemberDtoオブジェクトのNullチェック
-		 * nullの場合エラー画面を表示する
-		 * nullじゃなければ役職と事業所をDBから取得
-		 * modelにセットする
+		 * ModelAttributeでフラッシュスコープのオブジェクトをmodelにセットする
 		 * viewを返す
 		 * */
-		
-		MemberDto member = (MemberDto)model.getAttribute("saveMember");
 		
 		/*
 		 リダイレクトもとで取得する際にOptionalでnullチェックはしているのでここでは不要
@@ -186,13 +188,17 @@ public class MemberController {
 		}
 		 * */
 		
-		try {
+		/*
+		 リダイレクトもとで役職や事業所もsaveMemberにセットしているのでここでの取得は不要
+		 try {
 			model.addAttribute("place", memberService.placeById(member.getPlaceId()));
 			model.addAttribute("position", memberService.positionById(member.getPositionId()));
 		} catch(NotFoundException e) {
 			model.addAttribute("errorMessage", "対象が存在しません、または削除されています");
 			return "error";
 		}
+		 
+		 * */
 		
 		return "addComp";
 		
