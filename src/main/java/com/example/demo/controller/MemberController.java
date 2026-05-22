@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import java.util.List;
+import java.util.Objects;
 
 import jakarta.validation.Valid;
 
@@ -36,7 +37,7 @@ public class MemberController {
 	
 	/**
 	 * メソッド実行前処理用メソッド.
-	 * Modelにキー名「user」で登録されたオブジェクトが存在する場合に実行されます
+	 * Modelにキー名「memberForm」で登録されたオブジェクトが存在する場合に実行されます
 	 * 
 	 * @param binder
 	 */
@@ -47,7 +48,8 @@ public class MemberController {
 	}
 	
 	/** 
-	 * menu画面を表示する
+	 * 初期表示画面を表示する
+	 * 
 	 * */
 	@GetMapping("/")
 	private String index() {
@@ -93,10 +95,12 @@ public class MemberController {
 	
 	/** 
 	 * 新規登録確認画面表示
+	 * @param memberForm 画面で入力されたForm情報
+	 * @param result バリデーションチェックの結果
+	 * 
 	 * */
 	@PostMapping("/addConf")
-	private String addConf(@Valid @ModelAttribute("memberForm") MemberForm memberForm, BindingResult result, 
-			RedirectAttributes redirAttrs,Model model) {
+	private String addConf(@Valid @ModelAttribute("memberForm") MemberForm memberForm, BindingResult result, Model model) {
 		/*
 		 * バリデーションチェックでエラーがある場合、再度新規登録画面を表示してエラー内容を表示する
 		 * 役職と事業所のリスト表示のため取得してからadd.htmlを表示する
@@ -125,31 +129,76 @@ public class MemberController {
 	}
 	
 	/** 
-	 * 新規登録処理
+	 * 新規メンバー登録処理
+	 * @param memberForm 画面入力されたForm情報
+	 * @param redirectAttribute リダイレクト用の変数
 	 * */
 	@PostMapping("/add")
-	private String add(@ModelAttribute("memberForm") MemberForm memberForm, Model model) {
+	private String add(@ModelAttribute("memberForm") MemberForm memberForm, RedirectAttributes redirectAttribute,  Model model) {
 		/*
 		 * Formを受け取ってDtoに変換する
 		 * メンバー登録処理を行う
 		 * 登録したメンバーを再度DBから取得する（存在チェック）
-		 * 画面表示用に役職と事業所を取得する
-		 * 新規登録完了画面を表示する
+		 * リダイレクト先に渡すためメンバーIDと役職IDと事業所IDを取得してフラッシュスコープに渡す
+		 * リダイレクトで「addComp」の処理を起動する
 		 * */
 		
 		MemberDto memberdto = MemberDto.convertFormToDto(memberForm);
 		memberService.insert(memberdto);
 		
+		MemberDto saveMember = null;
+		
 		try {
-			model.addAttribute("member", memberService.getMember(memberForm.getMemberId()));
-			model.addAttribute("place", memberService.placeById(memberForm.getPlaceId()));
-			model.addAttribute("position", memberService.positionById(memberForm.getPositionId()));
+			saveMember = memberService.getMember(memberForm.getMemberId());
 		}catch(NotFoundException e) {
 			//エラーメッセージをセットしてerror.htmlを表示する
 			model.addAttribute("errorMessage", "対象が存在しません、または削除されています");
 			return "error";
 		}
+		
+		//リダイレクト先に新規登録したメンバーのIDを引き継ぐ
+		redirectAttribute.addFlashAttribute("memberId", saveMember.getMemberId());
+		redirectAttribute.addFlashAttribute("placeId", saveMember.getPlaceId());
+		redirectAttribute.addFlashAttribute("positionId", saveMember.getPositionId());
+		
+		
+		return "redirect:/addComp";
+	}
+	
+	/** 
+	 * 新規登録時のリダイレクト処理
+	 * 
+	 * */
+	@GetMapping("/addComp")
+	private String addComp(Model model) {
+		/*
+		 * リダイレクトもとから一時的に渡されたmemberId、placeId、positionIdのNullチェック
+		 * nullの場合エラー画面を表示する
+		 * nullじゃなければそれぞれのIdを使ってDBからデータを取得
+		 * modelにせっとする
+		 * viewを返す
+		 * */
+		
+		String memberId = (String)model.getAttribute("memberId");
+		String placeId = (String)model.getAttribute("placeId");
+		String positionId = (String)model.getAttribute("positionId");
+		
+		if(Objects.isNull(memberId) || Objects.isNull(placeId) || Objects.isNull(positionId)) {
+			model.addAttribute("errorMessage", "対象IDが存在しません");
+			return "error";
+		}
+		
+		try {
+			model.addAttribute("member", memberService.getMember(memberId));
+			model.addAttribute("place", memberService.placeById(placeId));
+			model.addAttribute("position", memberService.positionById(positionId));
+		} catch(NotFoundException e) {
+			model.addAttribute("errorMessage", "対象が存在しません、または削除されています");
+			return "error";
+		}
+		
 		return "addComp";
+		
 	}
 }
 
