@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<link rel="stylesheet" th:href="@{/css/common.css}">
+	<title>新規登録</title>
+</head>
+<body>
+	<div id="wapper">
+		<div class="menu">
+			<a href="/">メニュー</a>
+		</div>
+		<div class="menu">
+			<h2>新規登録 確認画面</h2>
+		</div>
+		<form method="post" th:object="${memberForm}" th:action="@{/add}">
+			<table class="ct">
+				<tbody>
+					<tr>
+						<th>社員ID</th>
+						<td th:text="${memberForm.memberId}"></td>
+						<input type="hidden" th:field="*{memberId}">
+					</tr>
+					<tr>
+						<th>氏名</th>
+						<td th:text="${memberForm.name}"></td>
+						<input type="hidden" th:field="*{name}">
+					</tr>
+					<tr>
+						<th>年齢</th>
+						<td th:text="${memberForm.age}"></td>
+						<input type="hidden" th:field="*{age}">
+					</tr>
+					<tr>
+						<th>性別</th>
+						<td th:text="${memberForm.sexName}"></td>
+						<input type="hidden" th:field="*{sex}">
+					</tr>
+					<tr>
+						<th>住所</th>
+						<td th:text="${memberForm.address}"></td>
+						<input type="hidden" th:field="*{address}">
+					</tr>
+					<tr>
+						<th>電話番号</th>
+						<td th:text="${memberForm.tel}"></td>
+						<input type="hidden" th:field="*{tel}">
+					</tr>
+					<tr>
+						<th>メールアドレス</th>
+						<td th:text="${memberForm.mail}"></td>
+						<input type="hidden" th:field="*{mail}">
+					</tr>
+					<tr>
+						<th>役職</th>
+						<td th:text="${position.positionName}"></td>
+						<input type="hidden" th:field="*{positionId}">
+					</tr>
+					<tr>
+						<th>事業所</th>
+						<td th:text="${place.placeName}"></td>
+						<input type="hidden" th:field="*{placeId}">
+					</tr>
+				</tbody>
+			</table>
+			<div class="menu">
+				<button type="submit">登録</button>
+				<!--javascriptでもとの入力値を保持したまま前の画面に遷移できる-->
+				<button type="button" onclick="history.back()">戻る</button>
+			</div>
+		</form>
+	</div>
+</body>
+</html>
