@@ -1,5 +1,10 @@
 package com.example.demo.form;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.Length;
+
 import com.example.demo.entity.Mst_Place;
 import com.example.demo.entity.Mst_Position;
 
@@ -9,39 +14,44 @@ import com.example.demo.entity.Mst_Position;
 public class MemberForm {
 	
 	/** ID */
+	@NotBlank
+	@Length(max = 10)
 	private String memberId;
 	
 	/** 名前 */
+	@NotBlank
+	@Length(max = 40)
 	private String name;
 	
 	/** 年齢 */
+	@NotNull(message = "年齢は必ず入力してください")
 	private Integer age;
 	
 	/** 性別 */
 	private Integer sex;
 	
-	/** 性別名*/
-	private String sexName;
-	
 	/** 住所 */
+	@NotBlank
+	@Length(max = 50)
 	private String address;
 	
 	/** 電話番号 */
 	private String tel;
 	
 	/** mail */
+	@Length(max = 20)
 	private String mail;
 	
 	/** 役職id */
 	private String positionId;
 	
-	/** 役職名 */
+	/** 役職 */
 	private Mst_Position position;
 	
 	/** 事業所id */
 	private String placeId;
 	
-	/** 事業所名 */
+	/** 事業所 */
 	private Mst_Place place;
 
 	public String getMemberId() {
@@ -76,14 +86,20 @@ public class MemberForm {
 		this.sex = sex;
 	}
 	
+	/*
+	 * タイムリーフの仕組み
+	 * HTMLに ${member.sexName} を書く
+	 *タイムリーフはsexNameフィールドを探すわけじゃなくて自動的に getSexName() というgetterを裏側で呼び出す。
+     *メソッドが実行され、その場で sex の中身（0か1か）が判定されて、「男」や「女」という文字がHTMLに返される。
+	 * */
 	public String getSexName() {
-		return sexName;
+		//性別が0なら男、それ以外は女を返す
+        if (this.sex == 0) {
+        	return "男";
+        } else {
+        	return "女";
+        }
 	}
-
-	public void setSexName(String sexName) {
-		this.sexName = sexName;
-	}
-
 
 	public String getAddress() {
 		return address;
