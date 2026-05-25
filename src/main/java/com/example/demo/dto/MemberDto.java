@@ -278,5 +278,25 @@ public class MemberDto {
 		
 		return memberDto;
 	}
+	
+	/**更新前Dtoに更新した箇所だけ値をセットする*/
+	public static final MemberDto memberDto(MemberDto memberDto, MemberDto oldMemberDto) {
+		//各値をセットする
+		oldMemberDto.setMemberId(memberDto.getMemberId());
+		oldMemberDto.setName(memberDto.getName());
+		oldMemberDto.setAge(memberDto.getAge());
+		oldMemberDto.setSex(memberDto.getSex());
+		oldMemberDto.setAddress(memberDto.getAddress());
+		oldMemberDto.setTel(memberDto.getTel());
+		oldMemberDto.setMail(memberDto.getMail());
+		oldMemberDto.setPositionId(memberDto.getPositionId());
+		oldMemberDto.setPlaceId(memberDto.getPlaceId());
+		
+		//更新用の変換なので更新日時のみセットする
+		memberDto.setUpdateDate(LocalDateTime.now());
+		
+		return memberDto;
+	}
+	
 
 }

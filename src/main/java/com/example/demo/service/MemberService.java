@@ -144,6 +144,28 @@ public class MemberService  {
 	}
 	
 	
+	/** 
+	 * メンバー削除処理
+	 * @parma id メンバーID
+	 * */
+	public void delete(String id) {
+		memberRepository.deleteById(id);
+	}
+	
+	
+	/** 
+	 * データの存在有無を返す
+	 * @param id メンバーID
+	 * @return 存在する場合：true
+	 * 			存在しない場合：false
+	 * 
+	 * */
+	public boolean checkMember(String id) {
+		//存在する場合：true
+		//存在しない場合：false
+		return memberRepository.existsById(id);
+	}
+	
 	
 	
 	

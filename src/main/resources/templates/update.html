@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<link rel="stylesheet" th:href="@{/css/common.css}">
+	<title>更新</title>
+</head>
+<body>
+	<div id="wapper">
+		<div class="menu">
+			<a href="/">メニュー</a><br>
+			<a href="/list">メンバ一覧</a>
+		</div>
+		<div class="menu">
+			<form method="post" th:action="@{/member/update}" th:object="${memberForm}">
+				<table class="ct">
+					<tbody>
+						<tr>
+							<th >社員ID</th>
+							<td th:text="${memberForm.memberId}"></td>
+							<input type="hidden" th:field="*{memberId}">
+						</tr>
+						<tr>
+							<th th:classappend="${#fields.hasErrors('name')} ? 'error'">氏名</th>
+							<td>
+								<input type="text" th:field="*{name}">
+								<div class="error-message error" th:errors="*{name}"></div>
+							</td>
+						</tr>
+						<tr>
+							<th th:classappend="${#fields.hasErrors('age')} ? 'error'">年齢</th>
+							<td>
+								<input type="text" th:field="*{age}">
+								<div class="error-message error" th:errors="*{age}"></div>
+							</td>
+						</tr>
+						<tr>
+							<th>性別</th>
+							<td>男<input type="radio" th:field="*{sex}" th:value="0">
+								女<input type="radio" th:field="*{sex}" th:value="1">
+							</td>
+						</tr>
+						<tr>
+							<th th:classappend="${#fields.hasErrors('address')} ? 'error'">住所</th>
+							<td>
+								<input type="text" th:field="*{address}">
+								<div class="error-message error" th:errors="*{address}"></div>
+							</td>
+						</tr>
+						<tr>
+							<th>電話番号</th>
+							<td>
+								<input type="text" th:field="*{tel}">
+							</td>
+						</tr>
+						<tr>
+							<th th:classappend="${#fields.hasErrors('mail')} ? 'error'">メールアドレス</th>
+							<td>
+								<input type="text" th:field="*{mail}">
+								<div class="error-message error" th:errors="*{mail}"></div>
+							</td>
+						</tr>
+						<tr>
+							<th>役職</th>
+							<td>
+								<select th:field="*{positionId}" >
+									<option th:each="pos : ${positions}"
+											th:value="${pos.positionId}"
+											th:text="${pos.positionName}"></option>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<th>事業所</th>
+							<td>
+								<select th:field="*{placeId}" >
+									<option th:each="pla : ${places}"
+											th:value="${pla.placeId}"
+											th:text="${pla.placeName}"></option>
+								</select>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<div class="menu">
+					<button type="submit">登録</button>
+					&nbsp;&nbsp;&nbsp;&nbsp
+					<!--javascriptでもとの入力値を保持したまま前の画面に遷移できる-->
+					<button type="button" onclick="history.back()">戻る</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</body>
+</html>
