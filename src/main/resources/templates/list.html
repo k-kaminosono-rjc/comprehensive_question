@@ -39,9 +39,9 @@
 					<td th:text="${member.mail}"></td>
 					<td th:text="${member.mstPosition?.positionName}"></td>
 					<td th:text="${member.mstPlace?.placeName}"></td>
-					<td><a><button>詳細</button></a></td>
-					<td><a><button>更新</button></a></td>
-					<td><a><button>削除</button></a></td>
+					<td><a th:href="@{/member/detail/{id}(id=*{member.memberId})}"><button>詳細</button></a></td>
+					<td><a th:href="@{/member/update/{id}(id=*{member.memberId})}"><button>更新</button></a></td>
+					<td><a th:href="@{/member/delete/{id}(id=*{member.memberId})}"><button>削除</button></a></td>
 				</tr>
 			</tbody>
 		</table>

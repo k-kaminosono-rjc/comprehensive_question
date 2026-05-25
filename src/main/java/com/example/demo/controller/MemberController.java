@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import java.util.List;
+import java.util.Objects;
 
 import jakarta.validation.Valid;
 
@@ -13,6 +14,7 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -201,6 +203,277 @@ public class MemberController {
 		 * */
 		
 		return "addComp";
+		
+	}
+	
+	
+	/** 
+	 * 詳細画面表示処理
+	 * @param id メンバーID
+	 * 
+	 * */
+	@GetMapping("/member/detail/{id}")
+	private String memberDetail(@PathVariable String id, Model model) {
+		/*
+		 URLからIDを取得する
+		 IDを条件にDBからメンバー情報を取得する
+		 役職、事業所も取得してmemberにセットする
+		 memberをmodelにセットしてViewを返す
+		 * */
+		
+		MemberDto memberDto = null;
+		
+		try {
+			memberDto = memberService.getMember(id);
+			memberDto.setMstPlace(memberService.placeById(memberDto.getPlaceId()));
+			memberDto.setMstPosition(memberService.positionById(memberDto.getPositionId()));
+		} catch(NotFoundException e) {
+			//メンバー取得エラーの場合エラーメッセージをセットしてerror.htmlを表示する
+			model.addAttribute("errorMessage", "対象が存在しません、または削除されています");
+			return "error";
+		}
+		
+		model.addAttribute("member", memberDto);
+		
+		return "detail";
+	}
+	
+	
+	/** 
+	 * 更新画面表示処理
+	 * @param id メンバーID
+	 * 
+	 * */
+	@GetMapping("/member/update/{id}")
+	private String memberUpdate(@PathVariable String id, Model model) {
+		/*
+		 IDを受け取る
+		 IDを条件にDBからデータを取得する
+		 取得したメンバー情報の役職IDと事業所IDを条件にデータを取得する
+		 DtoをFormに変換する
+		 役職と事業所のリストを取得する
+		 modelにセットする
+		 Viewを返す
+		 * */
+		MemberDto memberDto = null;
+		
+		try {
+			memberDto = memberService.getMember(id);
+			memberDto.setMstPlace(memberService.placeById(memberDto.getPlaceId()));
+			memberDto.setMstPosition(memberService.positionById(memberDto.getPositionId()));
+		}catch(NotFoundException e) {
+			model.addAttribute("errorMessage", "対象が存在しません、または削除されています");
+			return "error";
+		}
+		
+		MemberForm memberForm = MemberDto.convertDtoToForm(memberDto);
+		model.addAttribute("memberForm", memberForm);
+		//更新画面で事業所と役職のプルダウン表示用に取得
+		model.addAttribute("places", memberService.getPlace());
+		model.addAttribute("positions", memberService.getPosition());
+		
+		return "update";
+	}
+	
+	
+	/** 
+	 * 更新確認画面表示処理
+	 * @param form 更新情報
+	 * @param result バリデーションのチェック結果
+	 * @param redirect リダイレクト用のパラメータ
+	 * 
+	 * */
+	@PostMapping("member/update")
+	private String updateConf(@Valid @ModelAttribute("memberForm") MemberForm form, BindingResult result, Model model) {
+		/*
+		 バリデーションチェック
+		 チェックでエラーの場合、エラーメッセージをセットして前画面を表示する
+		 チェックでエラーがなければ、そのまま確認画面を表示する
+		 * */
+		
+		if(result.hasErrors()) {
+			model.addAttribute("places", memberService.getPlace());
+			model.addAttribute("positions", memberService.getPosition());
+			return "update";
+		}
+		
+		try {
+			//formオブジェクトに役職と事業所をセットすることでmodelにも反映される
+			form.setPlace(memberService.placeById(form.getPlaceId()));
+			form.setPosition(memberService.positionById(form.getPositionId()));
+		}catch(NotFoundException e) {
+			//エラーメッセージをセットしてerror.htmlを表示する
+			model.addAttribute("errorMessage", "対象が存在しません、または削除されています");
+			return "error";
+		}
+		
+		return "updateConf";
+	}
+	
+	
+	/** 
+	 * 更新処理
+	 * @param form 更新するメンバー情報
+	 * @param redirect リダイレクト先に渡すパラメータ
+	 * 
+	 * */
+	@PostMapping("member/update/conf")
+	private String update(@ModelAttribute("memberForm") MemberForm form, RedirectAttributes redirect, Model model) {
+		/*
+		 formをDtoに変換
+		 DBから更新する前のメンバー情報を取得する（Dto形式）
+		 formとoldMemberDtoを変換メソッドし更新後のDtoを取得
+		 受け取ったMemberDtoに役職と事業所をセットする
+		 Dtoを引数で渡してDBにデータを登録
+		 再度DBからデータを取得する
+		 役職と事業をセット
+		 リダイレクトする
+		 * */
+		
+		MemberDto memberDto = MemberDto.convertFormToDto(form);
+		MemberDto oldMemberDto = null;
+		
+		try {
+			oldMemberDto = memberService.getMember(form.getMemberId());
+		} catch(NotFoundException e) {
+			model.addAttribute("errorMessage", "対象が存在しません、または削除されています");
+			return "error";
+		}
+		
+		//更新前と画面入力されたデータをマージする
+		MemberDto mergeMemberDto = MemberDto.memberDto(memberDto, oldMemberDto);
+		
+		//この中でsaveメソッドを使っている
+		memberService.insert(mergeMemberDto);
+		
+		//idをリダイレクト先に渡す
+		redirect.addFlashAttribute("memberId",mergeMemberDto.getMemberId());
+		
+		return "redirect:/updateComp";
+		
+	}
+	
+	
+	/** 
+	 * 更新時のリダイレクト処理
+	 * 
+	 * */
+	@GetMapping("/updateComp")
+	private String updateComp(Model model) {
+		/*
+		 modelにメンバーIDが格納されている
+		 メンバーIDを条件に最新のデータをDBから取得する
+		 それぞれ役職と事業所もセットする
+		 Viewを返す
+		 * */
+		
+		MemberDto updateMemberDto = null;
+		
+		try {
+			updateMemberDto = memberService.getMember((String)model.getAttribute("memberId"));
+			updateMemberDto.setMstPlace(memberService.placeById(updateMemberDto.getPlaceId()));
+			updateMemberDto.setMstPosition(memberService.positionById(updateMemberDto.getPositionId()));
+		} catch(NotFoundException e) {
+			model.addAttribute("errorMessage", "対象が存在しません、または削除されています");
+			return "error";
+		}
+		
+		model.addAttribute("updateMember", updateMemberDto);
+		
+		return "updateComp";
+	}
+	
+	/** 
+	 * 削除確認画面表示処理
+	 * @param id メンバーID
+	 * 
+	 * */
+	@GetMapping("/member/delete/{id}")
+	private String deleteConf(@PathVariable String id, Model model) {
+		/*
+		 URLからidを受け取る
+		 受け取ったidを条件にメンバー情報を取得する（Dto形式）
+		 メンバー情報の役職と事業ををセットする
+		 modelにaddAttributeする
+		 Viewを返す
+		 * */
+		
+		MemberDto memberDto = null;
+		
+		try {
+			memberDto = memberService.getMember(id);
+			memberDto.setMstPlace(memberService.placeById(memberDto.getPlaceId()));
+			memberDto.setMstPosition(memberService.positionById(memberDto.getPositionId()));
+		} catch(NotFoundException e) {
+			model.addAttribute("errorMessage", "対象が存在しません、または削除されています");
+			return "error";
+		}
+		
+		model.addAttribute("member", memberDto);
+		
+		return "deleteConf";
+	}
+	
+	
+	/** 
+	 * 削除処理
+	 * @param 
+	 * 
+	 * */
+	@GetMapping("/member/delete/comp/{id}")
+	private String delete(@PathVariable String id, RedirectAttributes redirect, Model model) {
+		/*
+		 URLからidを受け取る
+		 受け取ったidを条件にメンバー情報を取得する（Dto形式）
+		 メンバー情報の役職と事業ををセットする
+		 受け取ったidを条件に対象データ削除する
+		 Viewを返す
+		 * */
+		
+		MemberDto memberDto = null;
+		
+		try {
+			memberDto = memberService.getMember(id);
+			memberDto.setMstPlace(memberService.placeById(memberDto.getPlaceId()));
+			memberDto.setMstPosition(memberService.positionById(memberDto.getPositionId()));
+		} catch(NotFoundException e) {
+			model.addAttribute("errorMessage", "対象が存在しません、または削除されています");
+			return "error";
+		}
+		
+		memberService.delete(id);
+		
+		//リダイレクト先ではデータの取得ができないのでフラッシュスコープにセットしリダイレクト先に渡す。
+		redirect.addFlashAttribute("member", memberDto);
+		redirect.addFlashAttribute("memberId", memberDto.getMemberId());
+		
+		return "redirect:/deleteComp";
+		
+	}
+	
+	
+	/** 
+	 * 削除時のリダイレクト処理
+	 * 
+	 * */
+	@GetMapping("/deleteComp")
+	private String deleteComp(Model model) {
+		//DBにデータが存在しないことを確認後Viewを返す
+		
+		String memberId = (String)model.getAttribute("memberId");
+		
+		//リロード時のメッセージ表示
+		if(Objects.isNull(memberId)) {
+			model.addAttribute("errorMessage", "この手続きはすでに完了しているか、URLが正しくありません。");
+			return "error";
+		}
+		
+		if(memberService.checkMember(memberId)) {
+			model.addAttribute("errorMessage", "データが適切に削除されていません。");
+			return "error";
+		}
+		
+		return "deleteComp";
 		
 	}
 }
